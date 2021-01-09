@@ -1,7 +1,8 @@
  # FRAS - Face Recognition Attendance System
  FRAS is a Server-Node based small attendance system using face recognition.
  
- This application is a small use case of the [face_recognition]() library which is based on [dlib]()
+ This application is a small use case of the [face_recognition](https://github.com/ageitgey/face_recognition) 
+ library which is based on [dlib](http://dlib.net/)
  ## Requirements:
  Make sure you have the necessary packages by doing this:
  ```bash
@@ -37,7 +38,28 @@ C:\USERS\ZERAX\DESKTOP\FRAS\TRAIN
  ```
  After that, you can run the main programe by calling `Main.py`.
 
- The first run of the application will require you to set up a config file
+ The first run of the application will require you to set up a config file, You will be
+ welcomed by the configuration window where you can add an ip camera, an internal 
+ camera, or a node.
 
+ **Add Camera:** will add 3 fileds:
+
+ - Camera Name: display name and will be used as the folder name where the logs will be
+   saved.
+ - Camera IP: accept an ip, or the number of the camera.
+ - Arduino IP: this filed is optional, if you want to use it you need and arduino 
+   connected to the network and accept http requests, the application will send it 
+   a request whenever a face gets recognized.
+   
+ **Add Node:** will add 2 fields:
+
+ - Node Name: display name and will be used as the folder name where the logs will be
+   saved.
+ - Node Port: used by the server to listen on (each node must have a unique port).
+
+ NOTE: Node is reffered to a small computer with a camera like raspberry pi 
+ for example running the `Node.py` script.
+
+ The rest of the application is self-explanatory with a hint for every control option. 
  ## Licence:
  [MIT](https://choosealicense.com/licenses/mit/)

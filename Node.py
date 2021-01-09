@@ -1,3 +1,4 @@
+import argparse
 import sys
 import time
 
@@ -12,6 +13,12 @@ from qimage2ndarray import array2qimage
 
 from utils import debug
 
+ap = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                             description="Node used to coonect to a server running the main application.",
+                             epilog="Example: python Node.py -c 127.0.0.1:5555")
+ap.add_argument("-c", "--connect", required=True, help="Server IP:Port.")
+args = vars(ap.parse_args())
+
 
 class Thread(QThread):
     """
@@ -22,7 +29,7 @@ class Thread(QThread):
     def __init__(self):
         super().__init__()
 
-        self.sendHub = imagezmq.ImageSender(connect_to='tcp://127.0.0.1:5555')
+        self.sendHub = imagezmq.ImageSender(connect_to=f'tcp://{args["connect"]}')
 
     def run(self):
         """
