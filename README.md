@@ -30,7 +30,7 @@ C:\USERS\ZERAX\DESKTOP\FRAS\TRAIN
  name of the file by adding `-o [OUT]` parameter but then you will need to modify the `MainDialog.py` 
  script to account for that).
  
- NOTE: There are other useful option in `Encode.py` script you can find them in the `-h` help parameter.
+ NOTE: There are other useful options in `Encode.py` script you can find them in the `-h` help parameter.
  
  Here's an example:
  ```bash
@@ -60,6 +60,6 @@ C:\USERS\ZERAX\DESKTOP\FRAS\TRAIN
  NOTE: Node is reffered to a small computer with a camera like raspberry pi 
  for example running the `Node.py` script.
 
- The rest of the application is self-explanatory with a hint for every control option. 
+ ###The rest of documentation is under construction but if you want to try, the application is self-explanatory with hints for the ambigous control options. 
  ## Licence:
  [MIT](https://choosealicense.com/licenses/mit/)
