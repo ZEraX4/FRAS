@@ -60,6 +60,6 @@ C:\USERS\ZERAX\DESKTOP\FRAS\TRAIN
  NOTE: Node is reffered to a small computer with a camera like raspberry pi 
  for example running the `Node.py` script.
 
- ###The rest of documentation is under construction but if you want to try, the application is self-explanatory with hints for the ambigous control options. 
+ The rest of documentation is under construction but if you want to try, the application is self-explanatory with hints for the ambigous control options. 
  ## Licence:
  [MIT](https://choosealicense.com/licenses/mit/)
