@@ -193,12 +193,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     form = Ui_Config()
-    form.setWindowFlags(form.windowFlags() |
-                        QtCore.Qt.WindowSystemMenuHint |
-                        QtCore.Qt.WindowMinMaxButtonsHint)
+    form.setWindowFlags(form.windowFlags() | QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowMinMaxButtonsHint)
     form.setWindowTitle("Face Recognition - Config")
     app.setWindowIcon(QtGui.QIcon('Icons/icon.png'))
-    # app.setStyleSheet(qdarkstyle.load_stylesheet())
 
     # Force the style to be the same on all OSs:
     app.setStyle("Fusion")
