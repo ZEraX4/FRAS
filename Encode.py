@@ -15,13 +15,13 @@ ap = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatte
                                          "You are supposed to have a training directory that contain video files or\n"
                                          "images folders of the IDs you want to encode, Then you can run the script\n"
                                          "with -d for specifing the training directory and -v or -i or both,\n\n"
-                                         "Note: You have to specifiy -o for -p, -s, -r options if it is not the default"
+                                         "Note: You have to specify -o for -p, -s, -r options if it is not the default"
                                          "\nname (enc.dat), Here are some examples: \n\n"
-                                         "\tpython Encode.py -d Train -i # encode just images in 'Train' directory\n"
-                                         "\tpython Encode.py -d Train -v # encode just videos in 'Train' directory\n"
+                                         "\tpython Encode.py -d Train -i # encode images only in 'Train' directory\n"
+                                         "\tpython Encode.py -d Train -v # encode videos only in 'Train' directory\n"
                                          "\tpython Encode.py -d Train -v # encode both videos and images in 'Train'\n"
-                                         "\tpython Encode.py -p          # print the content of the enc.dat file if "
-                                         "existed\n "
+                                         "\tpython Encode.py -p          # print the contents of the enc.dat file if "
+                                         "exists\n "
                                          "\tpython Encode.py -s 6669     # search if ID 6669 in enc.dat file\n"
                                          "\tpython Encode.py -r 6669     # remove ID 6669 from enc.dat file")
 ap.add_argument("-d", "--dir", help="Training directory.")
@@ -29,7 +29,7 @@ ap.add_argument("-o", "--out", help="Encoded data file.")
 ap.add_argument("-r", "--remove", type=int, help="Remove a specified encoding.")
 ap.add_argument("-v", "--videos", action="store_true", help="Use videos files.")
 ap.add_argument("-i", "--images", action="store_true", help="Use images files.")
-ap.add_argument("-p", "--print", action="store_true", help="Print the content of the .dat file.")
+ap.add_argument("-p", "--print", action="store_true", help="Print the contents of the .dat file.")
 ap.add_argument("-s", "--search", help="Search for a specified id in -p output.")
 args = vars(ap.parse_args())
 

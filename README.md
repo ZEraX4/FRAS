@@ -2,12 +2,13 @@
  FRAS is a Server-Node based small attendance system using face recognition.
  
  This application is a small use case of the [face_recognition](https://github.com/ageitgey/face_recognition) 
- library which is based on [dlib](http://dlib.net/)
+ library which is based on [dlib](http://dlib.net/).
  ## Requirements:
  Make sure you have the necessary packages by doing this:
  ```bash
  pip install -r requirements.txt 
  ```
+ Note: please refer to dlib site for instructions on how to compile it.
  ## How to use:
  First, you need to have a folder that contains either video files or image folders of the faces
  you want to encode, so you can use them in the application, Like this for example:
@@ -60,6 +61,7 @@ C:\USERS\ZERAX\DESKTOP\FRAS\TRAIN
  NOTE: Node is reffered to a small computer with a camera like raspberry pi 
  for example running the `Node.py` script.
 
- The rest of documentation is under construction but if you want to try, the application is self-explanatory with hints for the ambigous control options. 
+ The rest of documentation is under construction but if you want to try, the application is self-explanatory 
+ with hints for the ambigous control options. 
  ## Licence:
  [MIT](https://choosealicense.com/licenses/mit/)
