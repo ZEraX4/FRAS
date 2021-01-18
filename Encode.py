@@ -14,7 +14,7 @@ ap = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatte
                              description="Encode video files or images", epilog=""
                                          "You are supposed to have a training directory that contain video files or\n"
                                          "images folders of the IDs you want to encode, Then you can run the script\n"
-                                         "with -d for specifing the training directory and -v or -i or both,\n\n"
+                                         "with -d for specifying the training directory and -v or -i or both,\n\n"
                                          "Note: You have to specify -o for -p, -s, -r options if it is not the default"
                                          "\nname (enc.dat), Here are some examples: \n\n"
                                          "\tpython Encode.py -d Train -i     # encode images only in 'Train' "
@@ -162,7 +162,7 @@ if __name__ == "__main__":
                         if check(dd):
                             debug(2, f"{dd} is already existed, skipping...")
                         else:
-                            debug(1, f"Openning video file: {d}...")
+                            debug(1, f"Opening video file: {d}...")
                             i, e = enc_vid(path)
                             ids.extend(i)
                             encodings.extend(e)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
             sys.exit(0)
 
     if done:
-        debug(1, f"Writing enodings to {dat_file}...")
+        debug(1, f"Writing encodings to {dat_file}...")
         with open(dat_file, 'wb') as f:
             pickle.dump(len(ids), f)
             for i, v in zip(ids, encodings):
