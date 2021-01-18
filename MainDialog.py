@@ -25,18 +25,19 @@ encFile = 'enc.dat'
 tempFile = 'tmp.dat'
 # Path to where to save the logs
 LOGDIR = 'log'
-# Name of the key in the registery
+# Name of the key in the registry
 SETTINGS = "test"
 # Data variables
 ids = list()
 encodings = list()
 # The temp variable used for processType algorithm
 temp = {}
-# Lists of the houres used for determining the type of attendance
+# Lists of the hours used for determining the type of attendance
 timeIn = sorted([a for i in range(4) for a in (i, i + 8, i + 16)])
 timeOut = sorted([a for i in range(4) for a in (i + 4, i + 12, i + 20)])
 
 
+# noinspection PyUnresolvedReferences,PyTypeChecker
 class MainDialog(QDialog):
     def __init__(self, parent=None):
         """
@@ -44,6 +45,41 @@ class MainDialog(QDialog):
         :param parent: Parent of the dialog
         """
         super(MainDialog, self).__init__(parent)
+
+        def changeFilter(ind):
+            self.filter_proxy_model.setFilterKeyColumn(ind - 1)
+
+        def clearLog():
+            self.model.removeRows(0, self.model.rowCount())
+
+        def loadLog():
+            try:
+                with open('log.txt', 'r') as f:
+                    for line in f.readlines():
+                        data = line.split('\t')
+                        date = data[1] + ' - ' + data[2]
+                        self.addItem(data[0], data[3].strip(), date=date)
+            except FileNotFoundError:
+                QMessageBox.warning(None, "Error", "No log file found.", QMessageBox.Ok)
+
+        def startConfig():
+            cfg = Ui_Config()
+            cfg.exec_()
+            self.readKoskos()
+            self.setupCams()
+
+        def clear():
+            self.settings.beginGroup(SETTINGS)
+            if self.sender().objectName() == "save_action":
+                self.savePath.setText("")
+                self.settings.setValue("Save_Path", "")
+            elif self.sender().objectName() == "enc_action":
+                self.encPath.setText("")
+                self.settings.setValue("Encodings_Path", "")
+            self.settings.endGroup()
+
+        def slot_check():
+            self.check_path(self.sender().text())
 
         self.settings = QSettings("ZEraX", "FRAS")
         self.settings.beginGroup(SETTINGS)
@@ -81,7 +117,7 @@ class MainDialog(QDialog):
         self.outLabel.setEnabled(True)
         self.outLabel.setMinimumSize(QSize(200, 65))
         font = QFont()
-        font.setFamily(u"Hooge 05_54")
+        font.setFamily(u"Arial Bold")
         font.setPointSize(36)
         font.setBold(True)
         font.setWeight(75)
@@ -107,6 +143,9 @@ class MainDialog(QDialog):
         self.getSPath.setObjectName("getSPath")
         self.getSPath.setText("...")
         self.saveLayout.addWidget(self.getSPath)
+        action = self.savePath.addAction(QIcon("Icons/delete.png"), QLineEdit.TrailingPosition)
+        action.setObjectName("save_action")
+        action.triggered.connect(clear)
 
         self.verticalLayout.addLayout(self.saveLayout)
 
@@ -124,6 +163,9 @@ class MainDialog(QDialog):
         self.getPath.setObjectName("getPath")
         self.getPath.setText("...")
         self.encLayout.addWidget(self.getPath)
+        action = self.encPath.addAction(QIcon("Icons/delete.png"), QLineEdit.TrailingPosition)
+        action.setObjectName("enc_action")
+        action.triggered.connect(clear)
 
         self.verticalLayout.addLayout(self.encLayout)
 
@@ -145,28 +187,6 @@ class MainDialog(QDialog):
         self.filter_proxy_model = QSortFilterProxyModel()
         self.filter_proxy_model.setSourceModel(self.model)
         self.filter_proxy_model.setFilterKeyColumn(-1)
-
-        def changeFilter(ind):
-            self.filter_proxy_model.setFilterKeyColumn(ind - 1)
-
-        def clearLog():
-            self.model.removeRows(0, self.model.rowCount())
-
-        def loadLog():
-            try:
-                with open('log.txt', 'r') as f:
-                    for line in f.readlines():
-                        data = line.split('\t')
-                        date = data[1] + ' - ' + data[2]
-                        self.addItem(data[0], data[3].strip(), date=date)
-            except FileNotFoundError:
-                QMessageBox.warning(None, "Error", "No log file found.", QMessageBox.Ok)
-
-        def startConfig():
-            cfg = Ui_Config()
-            cfg.exec_()
-            self.readKoskos()
-            self.setupCams()
 
         self.attendanceTable = QTableView(self.toolsGB)
         self.attendanceTable.setModel(self.filter_proxy_model)
@@ -236,8 +256,10 @@ class MainDialog(QDialog):
         self.setupCams()
 
         self.retranslateUi(self)
-        self.getPath.clicked.connect(self.get_file)
+        self.getPath.clicked.connect(self.get_folder)
+        self.encPath.editingFinished.connect(slot_check)
         self.getSPath.clicked.connect(self.get_folder)
+        self.savePath.editingFinished.connect(slot_check)
         self.config.clicked.connect(startConfig)
         self.startBtn.clicked.connect(self.startCamera)
         self.stopBtn.clicked.connect(self.stop)
@@ -294,9 +316,41 @@ class MainDialog(QDialog):
                 else:
                     sys.exit(0)
 
+    def get_folder(self):
+        """
+        Slot used to get save folder path
+        :return: Nothing
+        """
+        path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        self.check_path(path)
+
+    def check_path(self, path):
+        """
+        Check if the provided path is writable
+        :return: Nothing
+        """
+        if path != "" or os.path.exists(path):
+            if not os.access(path, os.W_OK):
+                QMessageBox.warning(None, "Error", "Path folder is not writable", QMessageBox.Ok)
+                return
+        else:
+            return
+
+        if self.sender().objectName() in ["getPath", "getSPath"] or \
+                self.sender().sender().objectName() in ["savePath", "encPath"]:
+            self.settings.beginGroup(SETTINGS)
+
+            if self.sender().objectName() == "getSPath" or self.sender().sender().objectName() == "savePath":
+                self.savePath.setText(path)
+                self.settings.setValue("Save_Path", path)
+            else:
+                self.encPath.setText(path)
+                self.settings.setValue("Encodings_Path", path)
+            self.settings.endGroup()
+
     def setupCams(self):
         """
-        Setup the cameras views and their corresponding thread and proccess
+        Setup the cameras views and their corresponding thread and process
         :return: Nothing
         """
         for i in reversed(range(self.camLayout.count())):
@@ -312,34 +366,6 @@ class MainDialog(QDialog):
                 thread, proc = self.createCamera(i, "", "", k, (k, v))
             self.threads.append(thread)
             self.processes.append(proc)
-
-    def get_file(self):
-        """
-        Slot used to get encoding folder path
-        :return: Nothing
-        """
-        path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        self.encPath.setText(path)
-        self.settings.beginGroup(SETTINGS)
-        self.settings.setValue("Encodings_Path", path)
-        self.settings.endGroup()
-
-    def get_folder(self):
-        """
-        Slot used to get save folder path
-        :return: Nothing
-        """
-        path = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        if path != "":
-            if not os.access(path, os.W_OK):
-                QMessageBox.warning(None, "Error", "Path folder is not writable", QMessageBox.Ok)
-                return
-        else:
-            return
-        self.savePath.setText(path)
-        self.settings.beginGroup(SETTINGS)
-        self.settings.setValue("Save_Path", path)
-        self.settings.endGroup()
 
     def setTolerance(self, val):
         """
@@ -372,7 +398,7 @@ class MainDialog(QDialog):
         scene = QGraphicsScene(cameraView)
         scene.setObjectName(u"scene" + str(cId))
         label = QLabel(cameraView)
-        label.setText(name)
+        label.setText(f"{name} ({cap if node is None else node[1]})")
         label.setAlignment(Qt.AlignCenter)
         box = QHBoxLayout(cameraView)
         box.setAlignment(Qt.AlignBottom)
@@ -477,7 +503,7 @@ class MainDialog(QDialog):
                 data = pickle.load(f)
                 ids.append(data[0])
                 encodings.append(data[1])
-                self.setPorgress(lenBar, i + 1)
+                self.setProgress(lenBar, i + 1)
             f.close()
         except FileNotFoundError or EOFError:
             debug(2, f"Encodings file '{encFile}' not found, did you forget to run Encode.py??")
@@ -549,7 +575,7 @@ class MainDialog(QDialog):
         :param name: str - Name of the sender
         :param regid: int - The processed ID
         :param img: np.array - The image of the taken ID
-        :param dist: float - The distance of the detected ID to the closest registerd ID
+        :param dist: float - The distance of the detected ID to the closest registered ID
         :return: Nothing
         """
         ri = int(regid)
@@ -648,7 +674,7 @@ class MainDialog(QDialog):
         self.stopBtn.setEnabled(en)
         self.config.setEnabled(en)
 
-    def setPorgress(self, lenBar, i):
+    def setProgress(self, lenBar, i):
         """
         Slot - Set the progress
         :param lenBar: int - The length of the bar

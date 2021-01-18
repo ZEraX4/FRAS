@@ -6,30 +6,40 @@ import cv2
 import numpy as np
 import imagezmq
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QPalette, QColor, QPixmap, QImage
-from PyQt5.QtWidgets import QDialog, QApplication, QGraphicsScene
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QRegExp
+from PyQt5.QtGui import QPalette, QColor, QPixmap, QImage, QRegExpValidator
+from PyQt5.QtWidgets import QDialog, QApplication, QGraphicsScene, QHBoxLayout, QLineEdit, QPushButton
 from qimage2ndarray import array2qimage
 
 from utils import debug
 
 ap = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
-                             description="Node used to coonect to a server running the main application.",
+                             description="Node used to connect to a server running the main application.",
                              epilog="Example: python Node.py -c 127.0.0.1:5555")
-ap.add_argument("-c", "--connect", required=True, help="Server IP:Port.")
+ap.add_argument("-c", "--connect", required=False, help="Server IP:Port.")
 args = vars(ap.parse_args())
 
+ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])"
+portRange = "[0-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5]"
+ipRegex = QRegExp("^" + ipRange +
+                  "\\." + ipRange +
+                  "\\." + ipRange +
+                  "\\." + ipRange +
+                  "\\:" + portRange + "$")
+ipValid = QRegExpValidator(ipRegex)
 
+
+# noinspection PyUnresolvedReferences
 class Thread(QThread):
     """
     Thread used for sending frames to the server
     """
     change = pyqtSignal(QImage)
 
-    def __init__(self):
+    def __init__(self, inUrl):
         super().__init__()
 
-        self.sendHub = imagezmq.ImageSender(connect_to=f'tcp://{args["connect"]}')
+        self.sendHub = imagezmq.ImageSender(connect_to=f'tcp://{inUrl}')
 
     def run(self):
         """
@@ -57,7 +67,7 @@ class Thread(QThread):
             try:
                 int(rep)
                 frame = np.zeros_like(frame)
-                cv2.putText(frame, f"{rep}", (h//4, int(w//2.37)), font, 5, (0, 255, 0), 5)
+                cv2.putText(frame, f"{rep}", (h // 4, int(w // 2.37)), font, 5, (0, 255, 0), 5)
                 found = True
             except ValueError:
                 cv2.putText(frame, f"{rep}", (6, 150), font, 1, (0, 0, 255), 2)
@@ -69,30 +79,47 @@ class Thread(QThread):
                 time.sleep(1)
 
 
+# noinspection PyUnresolvedReferences
 class Ui_View(QDialog):
     """
     Main view
     """
+
     def __init__(self):
         """
         Constructor
         """
         super().__init__()
+        self.thread = None
         self.setObjectName("View")
         self.setWindowModality(QtCore.Qt.NonModal)
         self.resize(400, 300)
-        self.gridLayout = QtWidgets.QGridLayout(self)
-        self.gridLayout.setObjectName("gridLayout")
+
+        self.mainLayout = QtWidgets.QVBoxLayout(self)
+        self.mainLayout.setObjectName("mainLayout")
+
+        self.inputLayout = QHBoxLayout()
+        self.inputLayout.setContentsMargins(0, 0, 0, 0)
+        self.inputLayout.setObjectName("inputLayout")
+        self.inUrl = QLineEdit(self)
+        self.inUrl.setObjectName("urlPath")
+        self.inUrl.setPlaceholderText("URL, ex: 127.0.0.1:5555")
+        self.inUrl.setValidator(ipValid)
+        self.inUrl.setText(args['connect'] if args['connect'] is not None else "")
+        self.inputLayout.addWidget(self.inUrl)
+        self.connectBtn = QPushButton(self)
+        self.connectBtn.setObjectName("connect")
+        self.connectBtn.setText("Connect")
+        self.inputLayout.addWidget(self.connectBtn)
+
+        self.mainLayout.addLayout(self.inputLayout)
+
         self.cameraView = QtWidgets.QGraphicsView(self)
         self.cameraView.setObjectName("cameraView")
-        self.gridLayout.addWidget(self.cameraView, 0, 0, 1, 1)
+        self.mainLayout.addWidget(self.cameraView)
 
         self.scene = QGraphicsScene(self.cameraView)
-        self.thread = Thread()
-
-        self.thread.change.connect(self.change)
-
-        self.thread.start()
+        self.connectBtn.clicked.connect(self.start)
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -104,6 +131,21 @@ class Ui_View(QDialog):
         """
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("View", "View"))
+
+    def start(self):
+        url = self.inUrl.text()
+        if url == "":
+            debug(2, "URL is empty or wrong.")
+            return
+        try:
+            self.thread = Thread(url)
+        except imagezmq.zmq.error.ZMQError:
+            debug(3, "URL is not in the supported format.")
+            return
+        self.inUrl.setEnabled(False)
+        self.connectBtn.setEnabled(False)
+        self.thread.change.connect(self.change)
+        self.thread.start()
 
     def change(self, frame):
         """
@@ -118,7 +160,6 @@ class Ui_View(QDialog):
 
 
 if __name__ == "__main__":
-
     app = QApplication(sys.argv)
 
     form = Ui_View()

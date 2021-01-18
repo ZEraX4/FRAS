@@ -125,7 +125,7 @@ class Thread(QThread):
             self.paused = False
             self.startedRec = False
             self.vid.release()
-            debug(1, "Ending recording...")
+            debug(1, f"Stopped recording on cam: {self.name}.")
         else:
             CAM_SHAPE = tuple(self.shape)
             if CAM_SHAPE == (0, 0):
@@ -138,7 +138,7 @@ class Thread(QThread):
                 os.mkdir(REC_PATH)
             self.vid = cv2.VideoWriter(f"{REC_PATH}/{get_time(file=True)}.avi", self.fourcc, REC_FPS, CAM_SHAPE)
             self.paused = True
-            debug(1, "Started recording...")
+            debug(1, f"Started recording on cam: {self.name}.")
 
     def run(self):
         """
@@ -209,4 +209,4 @@ class Thread(QThread):
         """
         if self.vid:
             self.vid.release()
-            debug(1, "Ending recording...")
+            debug(1, f"Stopped recording on cam: {self.name}.")
