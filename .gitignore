@@ -1,0 +1,11 @@
+
+*.xml
+*.iml
+*.json
+*.pyc
+*.dat
+*.avi
+*.jpeg
+*.mp4
+*.txt
+LOCK

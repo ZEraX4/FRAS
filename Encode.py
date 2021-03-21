@@ -10,6 +10,7 @@ from face_recognition.face_detection_cli import image_files_in_folder
 
 from utils import debug
 
+# noinspection PyTypeChecker
 ap = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                              description="Encode video files or images", epilog=""
                                          "You are supposed to have a training directory that contain video files or\n"
@@ -198,4 +199,3 @@ if __name__ == "__main__":
                 pickle.dump((i, v), f)
             f.close()
         debug(1, "Done.")
-

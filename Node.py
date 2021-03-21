@@ -13,6 +13,7 @@ from qimage2ndarray import array2qimage
 
 from utils import debug
 
+# noinspection PyTypeChecker
 ap = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
                              description="Node used to connect to a server running the main application.",
                              epilog="Example: python Node.py -c 127.0.0.1:5555")
@@ -20,7 +21,8 @@ ap.add_argument("-c", "--connect", required=False, help="Server IP:Port.")
 args = vars(ap.parse_args())
 
 ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])"
-portRange = "[0-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5]"
+portRange = "([0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])"
+
 ipRegex = QRegExp("^" + ipRange +
                   "\\." + ipRange +
                   "\\." + ipRange +
