@@ -10,11 +10,8 @@ from utils import debug
 
 koskos = {}
 ipRange = "(?:[0-1]?[0-9]?[0-9]|2[0-4][0-9]|25[0-5])"
-portValid = QRegExpValidator(QRegExp("[0-5][0-9][0-9][0-9][0-9]|"
-                                     "6[0-4][0-9][0-9][0-9]|"
-                                     "65[0-4][0-9][0-9]|"
-                                     "655[0-2][0-9]|"
-                                     "6553[0-5]"))
+portValid = QRegExpValidator(QRegExp("([0-9]|[1-9]\\d|[1-9]\\d{2}|[1-9]\\d{3}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{"
+                                     "2}|655[0-2]\\d|6553[0-5])")) 
 ipRegex = QRegExp("^" + ipRange +
                   "\\." + ipRange +
                   "\\." + ipRange +
